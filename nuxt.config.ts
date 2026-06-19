@@ -1,19 +1,33 @@
 export default defineNuxtConfig({
-  compatibilityDate: '2024-09-18',
-  css: ['~/assets/css/main.css'],
+  compatibilityDate: "2024-09-18",
+  css: ["~/assets/css/main.css"],
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY,
+    },
+  },
   app: {
     head: {
       htmlAttrs: {
-        lang: 'ar',
-        dir: 'rtl'
+        lang: "ar",
+        dir: "rtl",
       },
-      title: 'دورة البرمجة للأطفال - سكراتش',
+      title: "مسجد الفرقان - التدريب الصيفي",
       meta: [
         {
-          name: 'description',
-          content: 'صفحة عربية لدورة برمجة للأطفال باستخدام سكراتش مع عروض، فيديوهات، وتسليم الواجب.'
-        }
-      ]
-    }
-  }
-})
+          name: "description",
+          content:
+            "دورة تعليم البرمجة للأشبال بالتدريب الصيفي بمسجد الفرقان بطنطا",
+        },
+      ],
+      link: [
+        {
+          rel: "icon",
+          type: "image/svg+xml",
+          href: "/favicon.svg",
+        },
+      ],
+    },
+  },
+});
