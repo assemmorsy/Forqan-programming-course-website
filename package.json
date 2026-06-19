@@ -1,0 +1,16 @@
+{
+  "name": "forqan-programming-course",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --host 127.0.0.1 --port 3001",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview --host 127.0.0.1 --port 3001"
+  },
+  "dependencies": {
+    "nuxt": "^3.13.2",
+    "vue": "^3.5.12"
+  },
+  "devDependencies": {}
+}
