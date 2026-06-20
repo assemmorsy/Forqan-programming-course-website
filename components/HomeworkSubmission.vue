@@ -1,10 +1,6 @@
 <template>
-  <section
-    id="homework"
-    class="content-band homework-section"
-    :class="{ 'homework-section-compact': !showIntro }"
-    aria-labelledby="homework-title"
-  >
+  <section id="homework" class="content-band homework-section" :class="{ 'homework-section-compact': !showIntro }"
+    aria-labelledby="homework-title">
     <div v-if="showIntro" class="homework-copy">
       <p class="eyebrow">{{ eyebrow }}</p>
       <h2 id="homework-title">{{ title }}</h2>
@@ -12,6 +8,10 @@
     </div>
 
     <form class="homework-form" @submit.prevent="submitHomework">
+      <p class="homework-name-alert">
+        تنبيه: اكتب اسم الطالب كاملًا كما هو مسجل في الدورة.
+      </p>
+
       <label>
         اسم الطالب
         <input v-model="form.studentName" name="studentName" type="text" required placeholder="مثال: أحمد محمد">
@@ -28,26 +28,16 @@
       </label>
 
       <div v-if="selectedAssignment" class="homework-help">
-        <p>{{ selectedAssignment.description }}</p>
+        <p>وصف الواجب : {{ selectedAssignment.description }}</p>
+        <p>خطوات الواجب : {{ selectedAssignment.description }}</p>
         <ol v-if="selectedAssignment.steps?.length">
           <li v-for="step in selectedAssignment.steps" :key="step">{{ step }}</li>
         </ol>
       </div>
 
-      <label>
-        ملاحظات قصيرة
-        <textarea v-model="form.notes" name="notes" rows="4" placeholder="ما الذي تعلمته في هذا المشروع؟"></textarea>
-      </label>
 
       <label class="file-drop homework-upload">
-        <input
-          ref="homeworkInput"
-          type="file"
-          name="project"
-          accept=".sb3"
-          required
-          @change="handleHomeworkChange"
-        >
+        <input ref="homeworkInput" type="file" name="project" accept=".sb3" required @change="handleHomeworkChange">
         <span>{{ homeworkFileName || 'رفع ملف مشروع سكراتش' }}</span>
         <small>الملف المطلوب بصيغة .sb3</small>
       </label>
@@ -92,8 +82,7 @@ const databaseAssignments = ref<Assignment[]>([])
 
 const form = reactive({
   studentName: '',
-  homeworkId: '',
-  notes: ''
+  homeworkId: ''
 })
 
 const availableAssignments = computed(() => (
@@ -164,6 +153,26 @@ const handleHomeworkChange = (event: Event) => {
   homeworkFileName.value = file?.name ?? ''
 }
 
+const getSubmitErrorMessage = (error: unknown) => {
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === 'object' && error && 'message' in error
+      ? String(error.message)
+      : ''
+
+  if (message.toLowerCase().includes('bucket not found')) {
+    return 'تعذر رفع الملف: مجلد التخزين scratch-homework غير موجود في Supabase.'
+  }
+
+  if (message.toLowerCase().includes('row-level security')) {
+    return 'تعذر إرسال الواجب: راجع سياسات الأمان RLS في Supabase.'
+  }
+
+  return message
+    ? `تعذر إرسال الواجب: ${message}`
+    : 'تعذر إرسال الواجب. تأكد من إعداد Supabase وحاول مرة أخرى.'
+}
+
 const submitHomework = async () => {
   submitMessage.value = ''
   submitError.value = false
@@ -208,7 +217,6 @@ const submitHomework = async () => {
         student_name: form.studentName,
         homework_id: form.homeworkId,
         homework_title: selectedAssignment.value.title,
-        notes: form.notes,
         storage_bucket: 'scratch-homework',
         file_path: filePath,
         file_name: homeworkFile.value.name,
@@ -222,7 +230,6 @@ const submitHomework = async () => {
     submitMessage.value = 'تم إرسال الواجب بنجاح.'
     form.studentName = ''
     form.homeworkId = ''
-    form.notes = ''
     homeworkFile.value = null
     homeworkFileName.value = ''
 
@@ -232,7 +239,7 @@ const submitHomework = async () => {
   } catch (error) {
     console.error(error)
     submitError.value = true
-    submitMessage.value = 'تعذر إرسال الواجب. تأكد من إعداد Supabase وحاول مرة أخرى.'
+    submitMessage.value = getSubmitErrorMessage(error)
   } finally {
     isSubmitting.value = false
   }
