@@ -29,7 +29,7 @@
 
       <div v-if="selectedAssignment" class="homework-help">
         <p>وصف الواجب : {{ selectedAssignment.description }}</p>
-        <p>خطوات الواجب : {{ selectedAssignment.description }}</p>
+        <p>خطوات الواجب :</p>
         <ol v-if="selectedAssignment.steps?.length">
           <li v-for="step in selectedAssignment.steps" :key="step">{{ step }}</li>
         </ol>
