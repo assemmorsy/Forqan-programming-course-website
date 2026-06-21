@@ -1,10 +1,7 @@
 <template>
   <main class="page-shell inner-page">
-    <PageHeader
-      :eyebrow="courseContent.pages.videos.eyebrow"
-      :title="courseContent.pages.videos.title"
-      :description="courseContent.pages.videos.description"
-    />
+    <PageHeader :eyebrow="courseContent.pages.videos.eyebrow" :title="courseContent.pages.videos.title"
+      :description="courseContent.pages.videos.description" />
 
     <section class="content-band video-library-section" aria-label="مكتبة فيديوهات الدورة">
       <div class="video-library-heading">
@@ -27,7 +24,7 @@
 
           <div class="video-player-frame">
             <video controls preload="metadata">
-              <source :src="video.url" type="video/mp4">
+              <source :src="config.public.supabaseUrl + video.url" type="video/mp4">
               المتصفح لا يدعم تشغيل الفيديو.
             </video>
           </div>
@@ -41,31 +38,31 @@
 
 <script setup lang="ts">
 const courseContent = useCourseContent()
-
+const config = useRuntimeConfig()
 const featuredVideos = [
   {
     eyebrow: 'البداية',
     title: 'فتح المتصفح والدخول إلى موقع Scratch',
     description: 'يتعلم الطالب كيف يفتح المتصفح، يدخل إلى موقع Scratch، ثم يبدأ مشروعًا جديدًا داخل محرر سكراتش.',
-    url: 'https://uyhzenkdqsqbbbwsxczc.supabase.co/storage/v1/object/public/WebSiteAssets/OpenScratch.mp4'
+    url: '/storage/v1/object/public/WebSiteAssets/OpenScratch.mp4'
   },
   {
     eyebrow: 'حفظ العمل',
     title: 'حفظ مشروع Scratch كملف على الجهاز',
     description: 'خطوات حفظ المشروع بعد انتهاء التدريب للحصول على ملف .sb3 المطلوب رفعه في صفحة الواجب.',
-    url: 'https://uyhzenkdqsqbbbwsxczc.supabase.co/storage/v1/object/public/WebSiteAssets/SaveWork.mp4'
+    url: '/storage/v1/object/public/WebSiteAssets/SaveWork.mp4'
   },
   {
     eyebrow: 'استكمال مشروع',
     title: 'فتح مشروع Scratch محفوظ سابقًا',
     description: 'طريقة الرجوع إلى مشروع محفوظ على الجهاز وفتحه مرة أخرى داخل Scratch لاستكمال التعديل أو حل الواجب.',
-    url: 'https://uyhzenkdqsqbbbwsxczc.supabase.co/storage/v1/object/public/WebSiteAssets/LoadPreviousWork.MP4'
+    url: '/storage/v1/object/public/WebSiteAssets/LoadPreviousWork.MP4'
   },
   {
     eyebrow: 'إعداد اللغة',
     title: 'تغيير لغة Scratch إلى العربية',
     description: 'شرح سريع لطريقة تغيير لغة واجهة Scratch إلى العربية حتى يستطيع الطالب متابعة الأوامر والقوائم بسهولة أثناء التدريب.',
-    url: 'https://uyhzenkdqsqbbbwsxczc.supabase.co/storage/v1/object/public/WebSiteAssets/ConvertLanguage.mp4'
+    url: '/storage/v1/object/public/WebSiteAssets/ConvertLanguage.mp4'
   }
 ]
 </script>

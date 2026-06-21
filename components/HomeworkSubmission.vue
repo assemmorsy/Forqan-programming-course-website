@@ -93,33 +93,9 @@ const selectedAssignment = computed(() => (
   availableAssignments.value.find((assignment) => assignment.id === form.homeworkId)
 ))
 
-const normalizeSteps = (value: unknown) => {
-  if (!Array.isArray(value)) {
-    return []
-  }
-
-  return value.filter((step): step is string => typeof step === 'string' && step.trim().length > 0)
-}
-
 const loadHomeworks = async () => {
   try {
-    const supabase = useSupabaseClient()
-    const { data, error } = await supabase
-      .from('homeworks')
-      .select('id, title, description, steps')
-      .eq('is_active', true)
-      .order('lesson_order', { ascending: true })
-
-    if (error) {
-      throw error
-    }
-
-    databaseAssignments.value = (data ?? []).map((homework) => ({
-      id: homework.id,
-      title: homework.title,
-      description: homework.description,
-      steps: normalizeSteps(homework.steps)
-    }))
+    databaseAssignments.value = await $fetch<Assignment[]>('/api/homeworks')
   } catch (error) {
     console.info('Using local homework list because Supabase homeworks could not be loaded.', error)
   }
@@ -128,22 +104,6 @@ const loadHomeworks = async () => {
 onMounted(() => {
   loadHomeworks()
 })
-
-const sanitizePathPart = (value: string) => value
-  .trim()
-  .replace(/[^\p{L}\p{N}-]+/gu, '-')
-  .replace(/-+/g, '-')
-  .replace(/^-|-$/g, '')
-  .toLowerCase()
-
-const buildStoragePath = (file: File) => {
-  const studentPart = sanitizePathPart(form.studentName) || 'student'
-  const homeworkPart = sanitizePathPart(form.homeworkId) || 'homework'
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const fileName = `${timestamp}-${studentPart}-${file.name.replace(/[^\w.-]+/g, '-')}`
-
-  return `${homeworkPart}/${fileName}`
-}
 
 const handleHomeworkChange = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -198,34 +158,15 @@ const submitHomework = async () => {
   isSubmitting.value = true
 
   try {
-    const supabase = useSupabaseClient()
-    const filePath = buildStoragePath(homeworkFile.value)
-    const uploadResult = await supabase.storage
-      .from('scratch-homework')
-      .upload(filePath, homeworkFile.value, {
-        contentType: 'application/octet-stream',
-        upsert: false
-      })
+    const formData = new FormData()
+    formData.append('studentName', form.studentName)
+    formData.append('homeworkId', form.homeworkId)
+    formData.append('project', homeworkFile.value)
 
-    if (uploadResult.error) {
-      throw uploadResult.error
-    }
-
-    const insertResult = await supabase
-      .from('homework_submissions')
-      .insert({
-        student_name: form.studentName,
-        homework_id: form.homeworkId,
-        homework_title: selectedAssignment.value.title,
-        storage_bucket: 'scratch-homework',
-        file_path: filePath,
-        file_name: homeworkFile.value.name,
-        file_size_bytes: homeworkFile.value.size
-      })
-
-    if (insertResult.error) {
-      throw insertResult.error
-    }
+    await $fetch('/api/homework-submissions', {
+      method: 'POST',
+      body: formData
+    })
 
     submitMessage.value = 'تم إرسال الواجب بنجاح.'
     form.studentName = ''
