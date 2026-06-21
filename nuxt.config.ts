@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-09-18",
   css: ["~/assets/css/main.css"],
+  experimental: {
+    appManifest: false,
+  },
   runtimeConfig: {
     public: {
       supabaseUrl: process.env.SUPABASE_URL,

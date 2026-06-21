@@ -24,7 +24,7 @@
 const links = [
   { to: '/', label: 'الرئيسية' },
   { to: '/content', label: 'المحتوى التعليمي' },
-  // { to: '/videos', label: 'الفيديوهات' },
+  { to: '/videos', label: 'الفيديوهات' },
   { to: '/homework', label: 'الواجب' }
 ]
 </script>
