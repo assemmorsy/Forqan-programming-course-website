@@ -2,18 +2,20 @@ const storageBucket = 'scratch-homework'
 
 const sanitizePathPart = (value: string) => value
   .trim()
-  .replace(/[^\p{L}\p{N}-]+/gu, '-')
+  .normalize('NFKD')
+  .replace(/[^a-zA-Z0-9-]+/g, '-')
   .replace(/-+/g, '-')
   .replace(/^-|-$/g, '')
   .toLowerCase()
 
-const buildStoragePath = (homeworkId: string, studentName: string, fileName: string) => {
-  const studentPart = sanitizePathPart(studentName) || 'student'
+const buildStoragePath = (homeworkId: string, fileName: string) => {
   const homeworkPart = sanitizePathPart(homeworkId) || 'homework'
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const safeFileName = fileName.replace(/[^\w.-]+/g, '-')
+  const randomPart = Math.random().toString(36).slice(2, 10)
+  const baseFileName = fileName.replace(/\.[^.]+$/, '')
+  const safeFileName = sanitizePathPart(baseFileName) || 'scratch-project'
 
-  return `${homeworkPart}/${timestamp}-${studentPart}-${safeFileName}`
+  return `${homeworkPart}/${timestamp}-${randomPart}-${safeFileName}.sb3`
 }
 
 type MultipartFormData = Awaited<ReturnType<typeof readMultipartFormData>>
@@ -67,7 +69,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const filePath = buildStoragePath(homeworkId, studentName, projectFile.filename)
+  const filePath = buildStoragePath(homeworkId, projectFile.filename)
   const uploadResult = await supabase.storage
     .from(storageBucket)
     .upload(filePath, projectFile.data, {
